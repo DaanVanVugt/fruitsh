@@ -7,7 +7,7 @@ You can specify individual files and directories to test, and even run individua
 `XML` and `junit` output are supported.
 
 ## Installation
-Place `fruit.sh` into your `PATH` and make it executable.
+Place `fruit.sh` somewhere in your `PATH` and make it executable.
 
 ## Usage
 ```
@@ -18,7 +18,7 @@ Usage: fruit.sh [-hk] [-t <type> --type=<type>] <file/dir>...
   -k         Keep the generated test executable and source file (for running in GDB)
   -t <type>  Type of output. Either none, junit or xml (default none)
   -s <name>  Test only a single subroutine if specified
-"
+
 The executable created will have a temporary file name.
 ```
 For example
