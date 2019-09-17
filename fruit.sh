@@ -158,8 +158,12 @@ function runtest() {
       exit_on_error $? Running $run_cmd ./$outfile failed \> $outfile.log
       util/fruit2junit.sh $outfile.log
     else
-      $run_cmd ./$outfile
+      $run_cmd ./$outfile > $outfile.log
       exit_on_error $? Running $run_cmd ./$outfile failed
+      cat $outfile.log
+      if cat $outfile.log | grep -qF "Some tests failed!"; then exit 1; fi
+      exit_on_error $? Failing tests detected
+      rm -f $outfile.log
     fi
   fi
 }
