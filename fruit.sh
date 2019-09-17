@@ -166,7 +166,7 @@ function runtest() {
       util/fruit2junit.sh $outfile.log
     else
       cat $outfile.log
-      if cat $outfile.log | grep -qF "Some tests failed!"; then exit 1; fi
+      cat $outfile.log | grep -qF "SUCCESSFUL!"
       exit_on_error $? Failing tests detected
       rm -f $outfile.log
     fi
