@@ -15,6 +15,7 @@ function usage() {
   echo "  -k         Keep the generated test executable and source file (for running in GDB)"
   echo "  -t <type>  Type of output. Either none, junit or xml (default none)"
   echo "  -s <name>  Test only a single subroutine if specified"
+  echo "  -c <cmd>   Command used to run binary. Otherwise, run unix-style ./binary"
   echo ""
   echo "The executable created will have a temporary file name."
 }
@@ -26,8 +27,9 @@ xml=""
 junit=0
 outfile="test"
 test_only=""
+run_cmd=""
 
-while getopts ":hkt:s:" opt; do
+while getopts ":hkt:s:c:" opt; do
   case $opt in
     h)
       usage
@@ -55,6 +57,9 @@ while getopts ":hkt:s:" opt; do
       ;;
     s)
       test_only="$OPTARG"
+      ;;
+    c)
+      run_cmd="$OPTARG"
       ;;
     \?)
       echo "Invalid option: -$OPTARG" >&2
@@ -146,16 +151,27 @@ function writetest() {
 
 function runtest() {
   make $outfile
+  exit_on_error $? Making $outfile failed
   if [ $? -eq 0 ]; then
     if [ "$junit" -eq 1 ]; then
-      ./$outfile > $outfile.log
+      $run_cmd ./$outfile > $outfile.log
+      exit_on_error $? Running $run_cmd ./$outfile failed \> $outfile.log
       util/fruit2junit.sh $outfile.log
     else
-      ./$outfile
+      $run_cmd ./$outfile
+      exit_on_error $? Running $run_cmd ./$outfile failed
     fi
   fi
 }
 
+exit_on_error() {
+    exit_code=$1
+    last_command=${@:2}
+    if [ $exit_code -ne 0 ]; then
+        >&2 echo "\"${last_command}\" command failed with exit code ${exit_code}."
+        exit $exit_code
+    fi
+}
 
 
 if [ $# -lt 1 ]; then
