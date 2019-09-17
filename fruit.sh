@@ -15,7 +15,7 @@ function usage() {
   echo "  -k         Keep the generated test executable and source file (for running in GDB)"
   echo "  -t <type>  Type of output. Either none, junit or xml (default none)"
   echo "  -s <name>  Test only a single subroutine if specified"
-  echo "  -c <cmd>   Command used to run binary. Otherwise, run unix-style ./binary"
+  echo "  -c <cmd>   Command used to run binary. If none, run unix-style ./binary (default none"
   echo ""
   echo "The executable created will have a temporary file name."
 }
@@ -27,7 +27,7 @@ xml=""
 junit=0
 outfile="test"
 test_only=""
-run_cmd=""
+run_cmd="none"
 
 while getopts ":hkt:s:c:" opt; do
   case $opt in
@@ -153,13 +153,18 @@ function runtest() {
   make $outfile
   exit_on_error $? Making $outfile failed
   if [ $? -eq 0 ]; then
-    if [ "$junit" -eq 1 ]; then
+    case $run_cmd in
+      none)
+      ./$outfile > $outfile.log
+        ;;
+      *)
       $run_cmd ./$outfile > $outfile.log
-      exit_on_error $? Running $run_cmd ./$outfile failed \> $outfile.log
+        ;;
+    esac
+    exit_on_error $? Running $run_cmd ./$outfile failed \> $outfile.log
+    if [ "$junit" -eq 1 ]; then
       util/fruit2junit.sh $outfile.log
     else
-      $run_cmd ./$outfile > $outfile.log
-      exit_on_error $? Running $run_cmd ./$outfile failed
       cat $outfile.log
       if cat $outfile.log | grep -qF "Some tests failed!"; then exit 1; fi
       exit_on_error $? Failing tests detected
