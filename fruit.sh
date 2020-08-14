@@ -207,6 +207,9 @@ done
 for file in `find $dirs -maxdepth 1 -type f -name 'setup_*.f90'`; do
   scanfile $file
 done
+for file in `find $dirs -maxdepth 1 -type f -name 'teardown_*.f90'`; do
+  scanfile $file
+done
 
 writetest
 runtest
